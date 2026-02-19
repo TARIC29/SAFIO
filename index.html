@@ -9,44 +9,47 @@
       --bg:#070b14;--bg2:#0f172a;--card:rgba(255,255,255,.06);--stroke:rgba(255,255,255,.14);
       --txt:#eef2ff;--muted:#a9b4c6;--accent:#ff6f3c;--accent2:#ff925f;
     }
+    body.theme-light{
+      --bg:#f4f8ff;--bg2:#e9f0ff;--card:#ffffff;--stroke:#d7e1f5;
+      --txt:#0f172a;--muted:#475569;--accent:#2563eb;--accent2:#3b82f6;
+    }
     *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    body{margin:0;color:var(--txt);background:radial-gradient(900px 500px at 10% -20%, #1b2a4a 0%, var(--bg2) 40%, var(--bg) 100%)}
+    body{margin:0;color:var(--txt);background:radial-gradient(900px 500px at 10% -20%, var(--bg2) 0%, var(--bg) 100%)}
     .wrap{max-width:1120px;margin:0 auto;padding:16px}
     .nav{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0}
-    .logo{font-weight:800;letter-spacing:.3px}
-    .nav a{color:var(--txt);text-decoration:none;padding:9px 12px;border-radius:10px;border:1px solid transparent}
-    .nav a:hover{border-color:var(--stroke);background:rgba(255,255,255,.04)}
+    .logo{font-weight:900;letter-spacing:.3px}
+    .nav a,.toggle{color:var(--txt);text-decoration:none;padding:9px 12px;border-radius:10px;border:1px solid var(--stroke);background:var(--card)}
     .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-weight:700;cursor:pointer;padding:11px 14px;border-radius:10px;text-decoration:none;display:inline-block}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    .tab{background:rgba(255,255,255,.04);border:1px solid var(--stroke);color:#fff;text-decoration:none;padding:8px 12px;border-radius:999px}
-    .tab:hover{background:rgba(255,255,255,.1)}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .tab{background:var(--card);border:1px solid var(--stroke);color:var(--txt);text-decoration:none;padding:8px 12px;border-radius:999px}
     .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;align-items:stretch;margin-top:12px}
-    .card{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:18px;backdrop-filter:blur(8px)}
+    .card{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:18px;backdrop-filter:blur(8px);box-shadow:0 12px 24px rgba(0,0,0,.08)}
     h1{font-size:clamp(1.5rem,3vw,2.4rem);margin:0 0 8px}
     h2{margin:0 0 8px}
     p{margin:0;color:var(--muted);line-height:1.5}
     .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
-    .kpi{background:rgba(255,255,255,.04);border:1px solid var(--stroke);border-radius:12px;padding:10px;text-align:center}
-    .kpi b{display:block;font-size:1.1rem;color:#fff}
+    .kpi{background:var(--card);border:1px solid var(--stroke);border-radius:12px;padding:10px;text-align:center}
+    .kpi b{display:block;font-size:1.1rem;color:var(--txt)}
     .list{display:grid;gap:10px;margin-top:12px}
-    .item{background:rgba(255,255,255,.03);border:1px solid var(--stroke);padding:10px;border-radius:12px}
-    .item b{color:#fff}
+    .item{background:var(--card);border:1px solid var(--stroke);padding:10px;border-radius:12px}
+    .item b{color:var(--txt)}
     .features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
     .feature{background:var(--card);border:1px solid var(--stroke);border-radius:14px;padding:14px}
     .feature h3{margin:0 0 6px;font-size:1rem}
     .cta{margin-top:16px;text-align:center}
     .footer{margin-top:20px;border-top:1px solid var(--stroke);padding:14px 0;color:var(--muted);text-align:center}
-    .tag{display:inline-block;font-size:.78rem;color:#d6fbe3;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.35);padding:4px 8px;border-radius:999px;margin-bottom:8px}
+    .tag{display:inline-block;font-size:.78rem;color:#166534;background:#dcfce7;border:1px solid #86efac;padding:4px 8px;border-radius:999px;margin-bottom:8px}
     @media (max-width:900px){.hero{grid-template-columns:1fr}.features{grid-template-columns:1fr 1fr}}
-    @media (max-width:560px){.kpis,.features{grid-template-columns:1fr}.nav{flex-wrap:wrap}.nav .actions{width:100%;display:flex;gap:8px}.nav .actions a{flex:1;text-align:center}}
+    @media (max-width:560px){.kpis,.features{grid-template-columns:1fr}.nav{flex-wrap:wrap}.nav .actions{width:100%;display:flex;gap:8px;flex-wrap:wrap}.nav .actions a,.toggle{flex:1;text-align:center}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="nav">
       <div class="logo">🎓 SAFIO EDU</div>
-      <div class="actions">
+      <div class="actions" style="display:flex;gap:8px;align-items:center;">
         <a href="planner.html">Emploi du temps</a>
+        <button class="toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
         <a class="btn" href="planner.html">Commencer</a>
       </div>
     </header>
@@ -97,8 +100,21 @@
     </section>
 
     <footer class="footer">
-      © 2026 <a href="https://socaf.onrender.com" target="_blank" rel="noopener noreferrer" style="color:#5fd8ff;text-decoration:none;font-weight:700;">SOCAF TDY INDUSTRIAL</a> — SAFIO EDU
+      © 2026 <a href="https://socaf.onrender.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;font-weight:700;">SOCAF TDY INDUSTRIAL</a> — SAFIO EDU
     </footer>
   </div>
+  <script>
+    function applyTheme(theme){
+      document.body.classList.toggle('theme-light', theme === 'light');
+      const btn = document.getElementById('themeBtn');
+      if (btn) btn.textContent = theme === 'light' ? '🌞 Light' : '🌙 Dark';
+    }
+    function toggleTheme(){
+      const next = document.body.classList.contains('theme-light') ? 'dark' : 'light';
+      localStorage.setItem('safio-theme', next);
+      applyTheme(next);
+    }
+    applyTheme(localStorage.getItem('safio-theme') || 'dark');
+  </script>
 </body>
 </html>
