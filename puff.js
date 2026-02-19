@@ -37,6 +37,15 @@ let currentCalendar = {};
 let currentScores = [];
 let lastConfig = null;
 
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 /* ============================= */
 /* ===== OUTILS =============== */
 /* ============================= */
@@ -150,14 +159,14 @@ function poserQuestions() {
     </select>`;
   });
 
-  html += "<h4>🎯 Jour des matières importantes (pour révision la veille)</h4>";
+  html += "<h4>🎯 Jours des matières importantes (choix multiple)</h4>";
   matieresImportantes.forEach((matiere) => {
     const fieldId = `jour_${keyFromName(matiere)}`;
-    html += `<label>${matiere} :</label><select id="${fieldId}"><option value="">Non précisé</option>`;
+    html += `<label>${matiere} :</label><div style="display:flex;gap:8px;flex-wrap:wrap;">`;
     jours.forEach((j) => {
-      html += `<option value="${j}">${j}</option>`;
+      html += `<label style="margin:0;"><input type="checkbox" class="important-day" data-matiere="${matiere}" data-jour="${j}" id="${fieldId}_${j}"> ${j}</label>`;
     });
-    html += "</select>";
+    html += "</div>";
   });
 
   html += `
@@ -179,10 +188,28 @@ function poserQuestions() {
 
   <label><input type="checkbox" id="examMode"> Mode examens proches</label>
 
+  <div id="examContainer" style="display:none; border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:10px;">
+    <h4>📝 Compositions (matière, jour, heure, date)</h4>
+    <div id="examRows"></div>
+    <button type="button" onclick="ajouterCompo()">+ Ajouter une composition</button>
+  </div>
+
   <button onclick="afficherEmploiScolaire()">3️⃣ Saisir emploi scolaire</button>
   `;
 
   setContainerHtml("questionsContainer", html);
+
+  const examModeEl = document.getElementById("examMode");
+  if (examModeEl) {
+    examModeEl.addEventListener("change", () => {
+      const visible = examModeEl.checked;
+      const container = document.getElementById("examContainer");
+      if (container) container.style.display = visible ? "block" : "none";
+      if (visible && document.querySelectorAll(".exam-row").length === 0) {
+        ajouterCompo();
+      }
+    });
+  }
 }
 
 /* ============================= */
@@ -235,12 +262,48 @@ function readImportantSubjectsDays(classe) {
   const map = {};
   const matieresImportantes = getImportantSubjects(classe);
   matieresImportantes.forEach((matiere) => {
-    const value = getInputValue(`jour_${keyFromName(matiere)}`);
-    if (value && jours.includes(value)) {
-      map[matiere] = value;
-    }
+    const values = Array.from(document.querySelectorAll(`.important-day[data-matiere="${matiere}"]:checked`))
+      .map((el) => el.dataset.jour)
+      .filter((d) => jours.includes(d));
+    if (values.length > 0) map[matiere] = values;
   });
   return map;
+}
+
+function ajouterCompo(defaults = {}) {
+  const classe = getInputValue("classe");
+  if (!classe || !coeffs[classe]) return;
+
+  const matieres = Object.keys(coeffs[classe]);
+  const container = document.getElementById("examRows");
+  if (!container) return;
+
+  const row = document.createElement("div");
+  row.className = "exam-row";
+  row.style.cssText = "display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px;";
+
+  const optionsMat = matieres.map((m) => `<option value="${escapeHtml(m)}" ${defaults.matiere === m ? "selected" : ""}>${escapeHtml(m)}</option>`).join("");
+  const optionsJour = jours.map((j) => `<option value="${j}" ${defaults.jour === j ? "selected" : ""}>${j}</option>`).join("");
+  const optionsHeure = horaires.map((h) => `<option value="${h}" ${defaults.heure === h ? "selected" : ""}>${h}</option>`).join("");
+
+  row.innerHTML = `
+    <label>Matière<select class="exam-matiere">${optionsMat}</select></label>
+    <label>Jour<select class="exam-jour">${optionsJour}</select></label>
+    <label>Heure<select class="exam-heure">${optionsHeure}</select></label>
+    <label>Date<input type="date" class="exam-date" value="${defaults.date || ""}"></label>
+    <button type="button" onclick="this.closest('.exam-row').remove()">Suppr.</button>
+  `;
+
+  container.appendChild(row);
+}
+
+function readExamCompositions() {
+  return Array.from(document.querySelectorAll(".exam-row")).map((row) => ({
+    matiere: row.querySelector(".exam-matiere")?.value,
+    jour: row.querySelector(".exam-jour")?.value,
+    heure: row.querySelector(".exam-heure")?.value,
+    date: row.querySelector(".exam-date")?.value || ""
+  })).filter((e) => e.matiere && e.jour && e.heure);
 }
 
 function listFreeSlots(calendar, prefs) {
@@ -305,19 +368,47 @@ function applyFixedCourses(calendar) {
 function applyDayBeforeRevisions(calendar, importantDays, sessionsDay, dayLimits, maxSlotsByWeekLimit) {
   let placed = 0;
 
-  Object.entries(importantDays).forEach(([matiere, jourCours]) => {
-    if (placed >= maxSlotsByWeekLimit) return;
-
-    const jourVeille = previousDay(jourCours);
-    if (!jourVeille) return;
-
-    LIMITES.creneauxRevisionVeille.forEach((heure) => {
+  Object.entries(importantDays).forEach(([matiere, joursCours]) => {
+    joursCours.forEach((jourCours) => {
       if (placed >= maxSlotsByWeekLimit) return;
-      if (calendar[jourVeille][heure]) return;
-      if ((sessionsDay[jourVeille] || 0) >= dayLimits[jourVeille]) return;
 
-      calendar[jourVeille][heure] = `Révision ${matiere}`;
-      sessionsDay[jourVeille] = (sessionsDay[jourVeille] || 0) + 1;
+      const jourVeille = previousDay(jourCours);
+      if (!jourVeille) return;
+
+      LIMITES.creneauxRevisionVeille.forEach((heure) => {
+        if (placed >= maxSlotsByWeekLimit) return;
+        if (calendar[jourVeille][heure]) return;
+        if ((sessionsDay[jourVeille] || 0) >= dayLimits[jourVeille]) return;
+
+        calendar[jourVeille][heure] = `Révision ${matiere}`;
+        sessionsDay[jourVeille] = (sessionsDay[jourVeille] || 0) + 1;
+        placed += 1;
+      });
+    });
+  });
+
+  return placed;
+}
+
+function applyExamCompositions(calendar, compositions, sessionsDay, dayLimits, maxSlotsByWeekLimit) {
+  let placed = 0;
+
+  compositions.forEach((exam) => {
+    if (placed >= maxSlotsByWeekLimit) return;
+    if (!calendar[exam.jour] || calendar[exam.jour][exam.heure]) return;
+
+    calendar[exam.jour][exam.heure] = `Compo ${exam.matiere}`;
+    sessionsDay[exam.jour] = (sessionsDay[exam.jour] || 0) + 1;
+    placed += 1;
+
+    const veille = previousDay(exam.jour);
+    if (!veille) return;
+    LIMITES.creneauxRevisionVeille.forEach((h) => {
+      if (placed >= maxSlotsByWeekLimit) return;
+      if (calendar[veille][h]) return;
+      if ((sessionsDay[veille] || 0) >= dayLimits[veille]) return;
+      calendar[veille][h] = `Révision ${exam.matiere}`;
+      sessionsDay[veille] = (sessionsDay[veille] || 0) + 1;
       placed += 1;
     });
   });
@@ -352,6 +443,13 @@ function genererEmploiPersonnel() {
 
   const scores = computeSubjectScores(classe, examMode);
   const importantDays = readImportantSubjectsDays(classe);
+  const compositions = examMode ? readExamCompositions() : [];
+
+  compositions.forEach((exam) => {
+    const target = scores.find((s) => s.matiere === exam.matiere);
+    if (target) target.score *= 1.35;
+  });
+
   currentScores = scores;
 
   const freeSlots = listFreeSlots(calendar, prefs);
@@ -364,7 +462,9 @@ function genererEmploiPersonnel() {
   const sessionsDay = {};
   jours.forEach((j) => (sessionsDay[j] = 0));
 
-  let totalPlaced = applyDayBeforeRevisions(calendar, importantDays, sessionsDay, dayLimits, maxSlotsByWeekLimit);
+  let totalPlaced = 0;
+  totalPlaced += applyExamCompositions(calendar, compositions, sessionsDay, dayLimits, maxSlotsByWeekLimit);
+  totalPlaced += applyDayBeforeRevisions(calendar, importantDays, sessionsDay, dayLimits, maxSlotsByWeekLimit - totalPlaced);
 
   freeSlots.forEach((slot) => {
     if (pool.length === 0 || totalPlaced >= maxSlotsByWeekLimit) return;
@@ -398,7 +498,7 @@ function genererEmploiPersonnel() {
   });
 
   currentCalendar = calendar;
-  lastConfig = { classe, maxSessions, maxHeuresSemaine, examMode, prefs, importantDays };
+  lastConfig = { classe, maxSessions, maxHeuresSemaine, examMode, prefs, importantDays, compositions };
   saveState();
 
   afficherTable(calendar);
@@ -527,17 +627,45 @@ function optimiserEncore() {
 
 function telechargerPDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("l", "pt", "a4");
-  const source = document.getElementById("edtPersonnelContainer");
+  const doc = new jsPDF("l", "mm", "a4");
 
-  doc.html(source, {
-    callback: function (pdfDoc) {
-      pdfDoc.save("emploi_du_temps_puff.pdf");
-    },
-    x: 20,
-    y: 20,
-    width: 760
+  doc.setFontSize(14);
+  doc.text("PUFF — Emploi du temps personnel", 10, 10);
+  doc.setFontSize(8);
+
+  const pageWidth = 297;
+  const colCount = jours.length + 1;
+  const colW = (pageWidth - 20) / colCount;
+  let y = 18;
+
+  doc.rect(10, y, colW, 6);
+  doc.text("Heure", 12, y + 4);
+  jours.forEach((j, idx) => {
+    const x = 10 + colW * (idx + 1);
+    doc.rect(x, y, colW, 6);
+    doc.text(j.substring(0, 3), x + 1, y + 4);
   });
+
+  y += 6;
+  horaires.forEach((h) => {
+    if (y > 195) {
+      doc.addPage();
+      y = 10;
+    }
+
+    doc.rect(10, y, colW, 6);
+    doc.text(h, 12, y + 4);
+
+    jours.forEach((j, idx) => {
+      const x = 10 + colW * (idx + 1);
+      const value = (currentCalendar[j] && currentCalendar[j][h]) ? currentCalendar[j][h] : "-";
+      doc.rect(x, y, colW, 6);
+      doc.text(String(value).substring(0, 14), x + 1, y + 4);
+    });
+    y += 6;
+  });
+
+  doc.save("emploi_du_temps_puff.pdf");
 }
 
 restoreState();
