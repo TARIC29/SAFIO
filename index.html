@@ -6,15 +6,8 @@
   <title>SAFIO EDU — Accueil</title>
   <style>
     :root{
-      --bg:#070b14;
-      --bg2:#0f172a;
-      --card:rgba(255,255,255,.06);
-      --stroke:rgba(255,255,255,.14);
-      --txt:#eef2ff;
-      --muted:#a9b4c6;
-      --accent:#ff6f3c;
-      --accent2:#ff925f;
-      --ok:#22c55e;
+      --bg:#070b14;--bg2:#0f172a;--card:rgba(255,255,255,.06);--stroke:rgba(255,255,255,.14);
+      --txt:#eef2ff;--muted:#a9b4c6;--accent:#ff6f3c;--accent2:#ff925f;
     }
     *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     body{margin:0;color:var(--txt);background:radial-gradient(900px 500px at 10% -20%, #1b2a4a 0%, var(--bg2) 40%, var(--bg) 100%)}
@@ -24,9 +17,13 @@
     .nav a{color:var(--txt);text-decoration:none;padding:9px 12px;border-radius:10px;border:1px solid transparent}
     .nav a:hover{border-color:var(--stroke);background:rgba(255,255,255,.04)}
     .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-weight:700;cursor:pointer;padding:11px 14px;border-radius:10px;text-decoration:none;display:inline-block}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .tab{background:rgba(255,255,255,.04);border:1px solid var(--stroke);color:#fff;text-decoration:none;padding:8px 12px;border-radius:999px}
+    .tab:hover{background:rgba(255,255,255,.1)}
     .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;align-items:stretch;margin-top:12px}
     .card{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:18px;backdrop-filter:blur(8px)}
     h1{font-size:clamp(1.5rem,3vw,2.4rem);margin:0 0 8px}
+    h2{margin:0 0 8px}
     p{margin:0;color:var(--muted);line-height:1.5}
     .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
     .kpi{background:rgba(255,255,255,.04);border:1px solid var(--stroke);border-radius:12px;padding:10px;text-align:center}
@@ -40,17 +37,8 @@
     .cta{margin-top:16px;text-align:center}
     .footer{margin-top:20px;border-top:1px solid var(--stroke);padding:14px 0;color:var(--muted);text-align:center}
     .tag{display:inline-block;font-size:.78rem;color:#d6fbe3;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.35);padding:4px 8px;border-radius:999px;margin-bottom:8px}
-    @media (max-width:900px){
-      .hero{grid-template-columns:1fr}
-      .features{grid-template-columns:1fr 1fr}
-    }
-    @media (max-width:560px){
-      .kpis{grid-template-columns:1fr}
-      .features{grid-template-columns:1fr}
-      .nav{flex-wrap:wrap}
-      .nav .actions{width:100%;display:flex;gap:8px}
-      .nav .actions a{flex:1;text-align:center}
-    }
+    @media (max-width:900px){.hero{grid-template-columns:1fr}.features{grid-template-columns:1fr 1fr}}
+    @media (max-width:560px){.kpis,.features{grid-template-columns:1fr}.nav{flex-wrap:wrap}.nav .actions{width:100%;display:flex;gap:8px}.nav .actions a{flex:1;text-align:center}}
   </style>
 </head>
 <body>
@@ -58,48 +46,53 @@
     <header class="nav">
       <div class="logo">🎓 SAFIO EDU</div>
       <div class="actions">
-        <a href="planner.html">Planificateur</a>
+        <a href="planner.html">Emploi du temps</a>
         <a class="btn" href="planner.html">Commencer</a>
       </div>
     </header>
 
     <section class="hero">
       <div class="card">
-        <span class="tag">Nouveau</span>
-        <h1>Bienvenue sur SAFIO EDU</h1>
-        <p>Ton espace intelligent pour organiser tes révisions, préparer tes compositions et améliorer tes résultats sans te surcharger.</p>
+        <span class="tag">Plateforme d'étude</span>
+        <h1>Bienvenue sur votre plateforme d’étude</h1>
+        <p>SAFIO EDU vous aide à planifier les révisions, travailler les fonctions, renforcer la physique et suivre vos progrès chaque semaine.</p>
+
+        <div class="tabs">
+          <a class="tab" href="planner.html">📅 Emploi du temps</a>
+          <a class="tab" href="#fonctions">📈 Étude de fonction</a>
+          <a class="tab" href="#physique">⚛️ Physique</a>
+        </div>
+
         <div class="kpis">
-          <div class="kpi"><b>Anti-fatigue</b><span>Pauses automatiques</span></div>
-          <div class="kpi"><b>Mode Examen</b><span>Révisions ciblées</span></div>
-          <div class="kpi"><b>PDF</b><span>Export instantané</span></div>
+          <div class="kpi"><b>Révisions</b><span>Plan clair par jour</span></div>
+          <div class="kpi"><b>Fonctions</b><span>Méthodes guidées</span></div>
+          <div class="kpi"><b>Physique</b><span>Exercices ciblés</span></div>
         </div>
-        <div class="cta">
-          <a class="btn" href="planner.html">Créer mon planning maintenant</a>
-        </div>
+        <div class="cta"><a class="btn" href="planner.html">Accéder à mon planning</a></div>
       </div>
 
       <div class="card">
         <h2 style="margin-top:0">Pourquoi SAFIO EDU ?</h2>
         <div class="list">
-          <div class="item"><b>✅ Révision la veille</b><br><small>Prépare automatiquement les matières importantes avant les cours/compositions.</small></div>
-          <div class="item"><b>✅ Week-end renforcé</b><br><small>Le samedi et dimanche sont optimisés pour augmenter le volume d’étude.</small></div>
-          <div class="item"><b>✅ Équilibre réel</b><br><small>Protection du sommeil, limite hebdomadaire et alertes surcharge.</small></div>
+          <div class="item"><b>✅ Organisation</b><br><small>Ton emploi du temps intelligent s'adapte à ta classe et tes priorités.</small></div>
+          <div class="item"><b>✅ Progression</b><br><small>Tu travailles les fonctions et la physique avec une approche structurée.</small></div>
+          <div class="item"><b>✅ Performance</b><br><small>Révision la veille et mode examen pour viser de meilleures notes.</small></div>
         </div>
       </div>
     </section>
 
     <section class="features">
-      <article class="feature">
-        <h3>Planification intelligente</h3>
-        <p>Le planning s’adapte à ta classe, tes coefficients et tes difficultés.</p>
+      <article id="fonctions" class="feature">
+        <h3>Étude de fonction</h3>
+        <p>Domaines, variations, dérivées et représentation graphique pour maîtriser les exercices clés.</p>
+      </article>
+      <article id="physique" class="feature">
+        <h3>Physique</h3>
+        <p>Mécanique, électricité, énergie et exercices de raisonnement pour préparer les compositions.</p>
       </article>
       <article class="feature">
-        <h3>Compositions personnalisées</h3>
-        <p>Ajoute plusieurs compositions avec date/heure pour prioriser tes efforts.</p>
-      </article>
-      <article class="feature">
-        <h3>Suivi motivant</h3>
-        <p>Statistiques visuelles et badge de régularité pour rester constant.</p>
+        <h3>Emploi du temps intelligent</h3>
+        <p>Répartition automatique avec pauses, équilibre hebdomadaire et export PDF.</p>
       </article>
     </section>
 
