@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>À propos — Safio EDUCI Traceur de Fonction</title>
+<style>
+  :root{
+    --bg:#0b1220;--card:#111a2b;--stroke:#28344d;--txt:#eef2ff;--muted:#9aa4b2;--accent:#ff6f3c;
+  }
+  body.theme-light{--bg:#f4f8ff;--card:#fff;--stroke:#d8e2f3;--txt:#0f172a;--muted:#475569;--accent:#2563eb}
+  *{box-sizing:border-box;font-family:Inter,system-ui,Arial,sans-serif}
+  body{margin:0;background:radial-gradient(1200px 600px at 20% -10%, #1b2a4a 0%, var(--bg) 55%);color:var(--txt)}
+  .wrap{max-width:1080px;margin:0 auto;padding:16px}
+  .site-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-img{width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid var(--stroke);background:var(--card)}
+  .logo h1{font-size:1.08rem;line-height:1.2;margin:0}
+  nav{display:flex;gap:8px;flex-wrap:wrap}
+  nav a, .theme-btn{padding:9px 12px;border-radius:10px;border:1px solid var(--stroke);background:var(--card);color:var(--txt);text-decoration:none}
+  .container{display:grid;gap:12px}
+  .card{background:var(--card);border:1px solid var(--stroke);border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+  h2{margin:0 0 8px;font-size:1.25rem}
+  p{margin:6px 0;color:var(--muted);line-height:1.6}
+  .photos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+  .photo-placeholder{height:220px;overflow:hidden;border:1px solid var(--stroke);border-radius:12px;background:#0b1220}
+  body.theme-light .photo-placeholder{background:#eaf1ff}
+  .photo-placeholder img{width:100%;height:100%;object-fit:cover;display:block}
+  .badge{display:inline-block;padding:5px 9px;border-radius:999px;border:1px solid var(--stroke);font-size:.78rem;color:var(--txt);margin-bottom:8px}
+  .footer{margin-top:12px;text-align:center;color:var(--muted);font-size:.9rem}
+  @media (max-width:700px){
+    .photos{grid-template-columns:1fr}
+    .logo h1{font-size:.98rem}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <div class="logo">
+      <img src="logo.png" alt="Logo du site" class="logo-img" onerror="this.style.display='none'">
+      <h1>Safio EDUCI<br>Traceur de Fonction</h1>
+    </div>
+    <nav>
+      <a href="index.html">Accueil</a>
+      <a href="etude-fonction.html">Étude de fonction</a>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙 Dark</button>
+    </nav>
+  </header>
+
+  <section class="container">
+    <article class="card">
+      <span class="badge">À propos</span>
+      <h2>À propos de moi</h2>
+      <p><strong>Nom :</strong> Tuo Dougnatchan Yohan</p>
+      <p><strong>Pourquoi cet outil :</strong> J'ai créé cet outil pour aider les élèves à mieux visualiser et comprendre les fonctions, leurs variations et leurs graphes.</p>
+      <p><strong>Objectif :</strong> rendre l’étude mathématique plus claire, plus visuelle et plus motivante pour tous les élèves.</p>
+
+      <div class="photos">
+        <div class="photo-placeholder"><img src="1.jpg" alt="Photo 1" loading="lazy"></div>
+        <div class="photo-placeholder"><img src="1.jpg" alt="Photo 2" loading="lazy"></div>
+      </div>
+    </article>
+  </section>
+
+  <p class="footer">© 2026 SOCAF TDY INDUSTRIAL — Safio EDUCI</p>
+</div>
+<script>
+  function applyTheme(theme){
+    document.body.classList.toggle('theme-light', theme==='light');
+    const b=document.getElementById('themeBtn');
+    if(b) b.textContent = theme==='light' ? '🌞 Light' : '🌙 Dark';
+  }
+  function toggleTheme(){
+    const next=document.body.classList.contains('theme-light') ? 'dark' : 'light';
+    localStorage.setItem('safio-theme', next);
+    applyTheme(next);
+  }
+  applyTheme(localStorage.getItem('safio-theme') || 'dark');
+</script>
+</body>
+</html>
